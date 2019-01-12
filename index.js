@@ -1,4 +1,4 @@
-const loadSnippet = require('./loadSnippet');
+const styleguide = require('./loadSnippet');
 const url = require('url');
 const http = require('http');
 const fs = require('fs');
@@ -59,14 +59,24 @@ function page (request, response) {
 
 	var stuff = path.pop();
 
-	console.log('Request:', stuff, nodes[stuff]);
+	console.log('Request:', stuff);
 
-	if (path) {
-		html = loadSnippet(stuff);
+	if (stuff !== 'favicon.ico') {
+		if (stuff) {
+			html = styleguide.loadSnippet(stuff);
+		}
+		else {
+			html = styleguide.loadStyleguidePage('start.hbs');
+		}
+
 		response.writeHead(200, {"Content-Type": "text/html"});
 		response.write(html.string);
-		response.end();
 	}
+	else {
+		console.log('For now we ignore favicon.ico');
+	}
+
+	response.end();
 }
 
 console.log('Starting server');

@@ -37,4 +37,25 @@ function loadSnippet (nodeName, data) {
 	return new Handlebars.SafeString(template(json));
 }
 
-return module.exports = loadSnippet;
+function loadStyleguidePage (name) {
+	var file = readFile(name);
+	var template = Handlebars.compile(file);
+	var items = toObject(nodes);
+	console.log({test: 123, n: items});
+	return new Handlebars.SafeString(template({test: 123, n: items}));
+}
+
+function toObject (array) {
+	var obj = {};
+
+	for (let key in nodes) {
+		obj[key] = nodes[key]
+	}
+
+	return obj;
+}
+
+return module.exports = {
+	loadSnippet: loadSnippet,
+	loadStyleguidePage: loadStyleguidePage
+};
