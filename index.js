@@ -1,10 +1,9 @@
-const styleguide = require('./loadSnippet');
 const url = require('url');
 const http = require('http');
-
 const path = require('path');
 const chokidar = require('chokidar');
 const find = require('find');
+const styleguide = require('./lib/loadSnippet');
 
 const DIR_PROJECT =  __dirname + '/project';
 
@@ -16,7 +15,6 @@ function initFileStructure () {
 		files.forEach(function (file) {
 		  createNode(file);
 		});
-
 	});
 }
 
@@ -70,7 +68,7 @@ function page (request, response) {
 			}
 		}
 		else {
-			html = styleguide.loadStyleguidePage('start.hbs', {nodes: toObject(nodes)});
+			html = styleguide.loadStyleguidePage('styleguide/templates/start.hbs', {nodes: toObject(nodes)});
 		}
 
 		response.writeHead(200, {"Content-Type": "text/html"});
@@ -112,7 +110,7 @@ app.on('listening', onListening);
 // One-liner for current directory, ignores .dotfiles and node_modules
 chokidar.watch('./project', {ignoreInitial: true, ignored: /(^|[\/\\])\..|node_modules/}).on('all', (event, path) => {
 	if (event == 'addDir') {
-	  return
+	  return;
 	}
 
 	console.log('-------------');
