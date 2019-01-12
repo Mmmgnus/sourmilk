@@ -110,7 +110,7 @@ app.listen(3000);
 app.on('listening', onListening);
 
 // One-liner for current directory, ignores .dotfiles and node_modules
-chokidar.watch('.', {ignoreInitial: true, ignored: /(^|[\/\\])\..|node_modules/}).on('all', (event, path) => {
+chokidar.watch('./project', {ignoreInitial: true, ignored: /(^|[\/\\])\..|node_modules/}).on('all', (event, path) => {
 	if (event == 'addDir') {
 	  return
 	}
