@@ -1,7 +1,6 @@
 const styleguide = require('./loadSnippet');
 const url = require('url');
 const http = require('http');
-const fs = require('fs');
 
 const path = require('path');
 const chokidar = require('chokidar');
@@ -18,7 +17,7 @@ function initFileStructure () {
 		  createNode(file);
 		});
 
-	  });
+	});
 }
 
 function createNode (file, remove, removeNode) {
@@ -59,14 +58,19 @@ function page (request, response) {
 
 	var stuff = path.pop();
 
-	console.log('Request:', stuff);
-
 	if (stuff !== 'favicon.ico') {
 		if (stuff) {
-			html = styleguide.loadSnippet(stuff);
+			if (path[0] === 'page') {
+				console.log('Requested PAGE of:', stuff);
+				html = styleguide.loadPage(stuff);
+			}
+			else {
+				console.log('Requested MODULE of:', stuff);
+				html = styleguide.loadSnippet(stuff);
+			}
 		}
 		else {
-			html = styleguide.loadStyleguidePage('start.hbs');
+			html = styleguide.loadStyleguidePage('start.hbs', {nodes: toObject(nodes)});
 		}
 
 		response.writeHead(200, {"Content-Type": "text/html"});
@@ -80,6 +84,16 @@ function page (request, response) {
 }
 
 console.log('Starting server');
+
+function toObject (array) {
+	var obj = {};
+
+	for (let key in nodes) {
+		obj[key] = nodes[key]
+	}
+
+	return obj;
+}
 
 function onListening() {
 	var addr = app.address();

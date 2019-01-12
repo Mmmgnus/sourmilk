@@ -1,5 +1,6 @@
 const Handlebars = require('handlebars');
 const fs = require('fs');
+const markdown = require('markdown').markdown;
 
 Handlebars.registerHelper('fullName', function(name) {
 	return name.firstName + " " + name.lastName;
@@ -37,25 +38,39 @@ function loadSnippet (nodeName, data) {
 	return new Handlebars.SafeString(template(json));
 }
 
-function loadStyleguidePage (name) {
-	var file = readFile(name);
-	var template = Handlebars.compile(file);
-	var items = toObject(nodes);
-	console.log({test: 123, n: items});
-	return new Handlebars.SafeString(template({test: 123, n: items}));
-}
+function loadPage (nodeName, data) {
+	var node = nodes[nodeName];
+	var file = readFile(node.template);
+	var pageFile = readFile('page.hbs');
+	var doc = readFile(node.documentation);
+	var json = node.data ? JSON.parse(readFile(node.data)) : {};
+	var template = file ? Handlebars.compile(file) : null;
 
-function toObject (array) {
-	var obj = {};
+	var pageTemplate = Handlebars.compile(pageFile);
 
-	for (let key in nodes) {
-		obj[key] = nodes[key]
+	if(data && data.hash && data.hash.data) {
+		json = Object.assign(json, JSON.parse(data.hash.data) || {});
 	}
 
-	return obj;
+	var page = {
+		documentation: markdown.toHTML(doc),
+		example: !!file,
+		title: nodeName.replace('-', ' '),
+		name: nodeName
+	};
+
+	return new Handlebars.SafeString(pageTemplate(page));
+}
+
+function loadStyleguidePage (name, data) {
+	var file = readFile(name);
+	var template = Handlebars.compile(file);
+
+	return new Handlebars.SafeString(template(data || {}));
 }
 
 return module.exports = {
 	loadSnippet: loadSnippet,
+	loadPage: loadPage,
 	loadStyleguidePage: loadStyleguidePage
 };

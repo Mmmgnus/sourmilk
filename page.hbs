@@ -1,0 +1,13 @@
+{{#unless documentation }}
+<h1> {{ title }} </h1>
+{{/unless}}
+
+<div class="documentation">
+	{{{ documentation }}}
+</div>
+
+{{#if example}}
+	<div class="example-viewer">
+		<iframe src="/{{name}}"></iframe>
+	</div>
+{{/if}}
