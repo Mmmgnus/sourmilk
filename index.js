@@ -1,11 +1,14 @@
 const url = require('url');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 const chokidar = require('chokidar');
 const find = require('find');
 const styleguide = require('./lib/loadSnippet');
+const handlebars = require('handlebars');
 
 const DIR_PROJECT =  __dirname + '/project';
+const DIR_STYLEGUIDE = __dirname + '/styleguide';
 
 nodes = [];
 
@@ -14,6 +17,15 @@ function initFileStructure () {
 
 		files.forEach(function (file) {
 		  createNode(file);
+		});
+	});
+
+	find.file(/\.hbs/, DIR_STYLEGUIDE + '/templates/snippets', function (files) {
+		files.forEach(function (file) {
+			handlebars.registerPartial(
+				path.basename(file, '.hbs'),
+				fs.readFileSync(file).toString('utf-8')
+			);
 		});
 	});
 }
@@ -60,11 +72,11 @@ function page (request, response) {
 		if (stuff) {
 			if (path[0] === 'page') {
 				console.log('Requested PAGE of:', stuff);
-				html = styleguide.loadPage(stuff);
+				html = styleguide.loadPage(stuff, {nodes: toObject(nodes)});
 			}
 			else {
 				console.log('Requested MODULE of:', stuff);
-				html = styleguide.loadSnippet(stuff);
+				html = styleguide.loadSnippet(stuff, {nodes: toObject(nodes)});
 			}
 		}
 		else {

@@ -1,3 +1,5 @@
+{{> head }}
+
 {{#unless documentation }}
 <h1> {{ title }} </h1>
 {{/unless}}
@@ -11,3 +13,8 @@
 		<iframe src="/{{name}}"></iframe>
 	</div>
 {{/if}}
+
+{{> navigation}}
+
+{{> foot }}
+
