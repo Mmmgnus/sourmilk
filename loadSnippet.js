@@ -2,15 +2,6 @@ const Handlebars = require('handlebars');
 const fs = require('fs');
 const markdown = require('markdown').markdown;
 
-Handlebars.registerHelper('fullName', function(name) {
-	return name.firstName + " " + name.lastName;
-});
-
-Handlebars.registerPartial(
-	'component1',
-	readFile('component1.hbs')
-);
-
 Handlebars.registerHelper(
 	'snippet',
 	loadSnippet
