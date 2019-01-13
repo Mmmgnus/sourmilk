@@ -1,14 +1,18 @@
 const url = require('url');
-const http = require('http');
+// const http = require('http');
+const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const chokidar = require('chokidar');
 const find = require('find');
 const styleguide = require('./lib/loadSnippet');
 const handlebars = require('handlebars');
+const chalk = require('chalk');
 
 const DIR_PROJECT =  __dirname + '/project';
 const DIR_STYLEGUIDE = __dirname + '/styleguide';
+
+const PORT = 3000;
 
 nodes = [];
 
@@ -56,10 +60,10 @@ function createNode (file, remove, removeNode) {
 	  nodes[name] = node;
 	}
 
-	// console.log('node created/updated:', node);
+	return node;
   }
 
-const app = http.createServer(page);
+const app = express();
 
 function page (request, response) {
 	var html;
@@ -93,8 +97,6 @@ function page (request, response) {
 	response.end();
 }
 
-console.log('Starting server');
-
 function toObject (array) {
 	var obj = {};
 
@@ -105,19 +107,34 @@ function toObject (array) {
 	return obj;
 }
 
-function onListening() {
-	var addr = app.address();
-	var bind = typeof addr === 'string'
-		? 'pipe ' + addr
-		: 'port ' + addr.port;
+// Assets used by the styleguide.
+app.use('/styleguide/static', express.static(path.join(__dirname, 'styleguide/assets')));
 
-	console.log('Listening on ' + bind);
-}
+app.get('/', function (request, response) {
+	html = styleguide.loadStyleguidePage('styleguide/templates/start.hbs', {nodes: toObject(nodes)});
+	response.send(html.string);
+});
+
+// Sends page with documentation and component example.
+app.get('/:page', function (request, response) {
+	console.time('[Page] ' + request.params.page);
+	var html = styleguide.loadPage(request.params.page, {nodes: toObject(nodes)});
+	response.send(html.string);
+	console.timeEnd('[Page] ' + request.params.page);
+});
+
+// Sends only the component
+app.get('/component/:name', function (request, response) {
+	console.time('[Component] ' + request.params.name);
+	var html = styleguide.loadSnippet(request.params.name, {nodes: toObject(nodes)});
+	response.send(html.string);
+	console.timeEnd('[Component] ' + request.params.name);
+});
 
 initFileStructure();
 
-app.listen(3000);
-app.on('listening', onListening);
+console.log(chalk.bold('\nStarting styleguide…'));
+app.listen(PORT, () => console.log(chalk.green('Styleguide is running at http://localhost:' + PORT), '\n'));
 
 // One-liner for current directory, ignores .dotfiles and node_modules
 chokidar.watch('./project', {ignoreInitial: true, ignored: /(^|[\/\\])\..|node_modules/}).on('all', (event, path) => {
@@ -125,9 +142,12 @@ chokidar.watch('./project', {ignoreInitial: true, ignored: /(^|[\/\\])\..|node_m
 	  return;
 	}
 
-	console.log('-------------');
-	console.log(event, path);
-	createNode(path, event === 'unlink', event === 'unlinkDir');
-	console.log('-------------');
-	console.log(nodes);
+	var node = createNode(path, event === 'unlink', event === 'unlinkDir');
+
+	console.log('\n------------------------------------------');
+	console.log(chalk.yellow('[' + event + ']'), chalk.italic(path), '\n');
+	for (let key in node) {
+		console.log(chalk.bold(key) + ':', node[key]);
+	}
+	console.log('------------------------------------------');
   });

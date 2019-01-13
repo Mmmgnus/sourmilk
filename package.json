@@ -16,5 +16,9 @@
     "install": "^0.12.2",
     "markdown": "^0.5.0",
     "npm": "^6.5.0"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "express": "^4.16.4"
   }
 }

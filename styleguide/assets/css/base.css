@@ -1,0 +1,18 @@
+html,
+body {
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	font: 14px/1.5 Helvetica;
+}
+
+.container {
+	margin: 0 auto;
+	max-width: 920px;
+}
+
+.example-viewer > iframe {
+	border: 1px solid #ccc;
+}
